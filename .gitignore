@@ -15,3 +15,4 @@ websocket/target/
 
 
 /dataScripts/augmented_reports
+**/__pycache__/
