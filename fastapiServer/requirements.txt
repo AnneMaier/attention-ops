@@ -4,3 +4,5 @@ pymongo
 boto3
 requests
 httpx
+pytest
+pytest-asyncio
