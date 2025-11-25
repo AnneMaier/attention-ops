@@ -30,7 +30,7 @@ function ReportDetail() {
       try {
         const response = await axios.get(`/api/reports/${reportId}/content`);
         setReportData(response.data);
-      } catch (error) {
+      } catch {
         message.error('보고서 상세 내용을 불러오는 데 실패했습니다.');
       } finally {
         setLoading(false);
@@ -45,9 +45,9 @@ function ReportDetail() {
     const totalDurationMinutes = reportData.sessions.reduce((acc, session) => acc + session.totalDurationSeconds, 0) / 60;
     const totalEventCounts = { yawn: 0, distraction: 0, drowsiness: 0 };
     reportData.sessions.forEach(session => {
-        totalEventCounts.yawn += session.eventCounts.yawn;
-        totalEventCounts.distraction += session.eventCounts.distraction;
-        totalEventCounts.drowsiness += session.eventCounts.drowsiness;
+      totalEventCounts.yawn += session.eventCounts.yawn;
+      totalEventCounts.distraction += session.eventCounts.distraction;
+      totalEventCounts.drowsiness += session.eventCounts.drowsiness;
     });
     const totalAlerts = totalEventCounts.yawn + totalEventCounts.distraction + totalEventCounts.drowsiness;
 
@@ -63,19 +63,19 @@ function ReportDetail() {
       }],
     };
     const pieChartOptions = {
-        responsive: true,
-        plugins: {
-            legend: { position: 'top' },
-            datalabels: { // 데이터 레이블 플러그인 설정
-                formatter: (value, ctx) => {
-                    const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                    const percentage = (value * 100 / sum).toFixed(1) + '%';
-                    return percentage;
-                },
-                color: '#fff',
-                font: { weight: 'bold', size: 14 }
-            }
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        datalabels: { // 데이터 레이블 플러그인 설정
+          formatter: (value, ctx) => {
+            const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            const percentage = (value * 100 / sum).toFixed(1) + '%';
+            return percentage;
+          },
+          color: '#fff',
+          font: { weight: 'bold', size: 14 }
         }
+      }
     };
 
     // 4. 막대 차트 데이터 및 옵션 수정
@@ -89,14 +89,14 @@ function ReportDetail() {
         borderWidth: 2
       }],
     };
-     const barChartOptions = {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-        },
-        scales: {
-            y: { beginAtZero: true }
-        }
+    const barChartOptions = {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
     };
 
 
@@ -118,7 +118,7 @@ function ReportDetail() {
   }
 
   if (!calculatedData) {
-    return <Title level={3} style={{textAlign: 'center', paddingTop: '50px'}}>보고서 데이터를 표시할 수 없습니다.</Title>;
+    return <Title level={3} style={{ textAlign: 'center', paddingTop: '50px' }}>보고서 데이터를 표시할 수 없습니다.</Title>;
   }
 
   return (
@@ -137,14 +137,14 @@ function ReportDetail() {
           {reportData.dateRange.start ? new Date(reportData.dateRange.start).toLocaleDateString() : 'N/A'} ~ {reportData.dateRange.end ? new Date(reportData.dateRange.end).toLocaleDateString() : 'N/A'}
         </Descriptions.Item>
       </Descriptions>
-      
+
       <Title level={4} style={{ marginBottom: 16 }}>핵심 요약</Title>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}><Card><Statistic title="총 세션 수" value={calculatedData.summary.totalSessions} /></Card></Col>
         <Col xs={24} sm={12} md={8}><Card><Statistic title="총 학습 시간(분)" value={Math.round(calculatedData.summary.totalDurationMinutes)} /></Card></Col>
         <Col xs={24} sm={12} md={8}><Card><Statistic title="총 알림 횟수" value={calculatedData.summary.totalAlerts} suffix="회" /></Card></Col>
       </Row>
-      
+
       <Title level={4} style={{ marginTop: 24, marginBottom: 16 }}>AI 학습 코치</Title>
       <Alert
         message="코칭 피드백"
@@ -155,18 +155,18 @@ function ReportDetail() {
 
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
         <Col xs={24} lg={10}>
-            <Card title="이벤트 유형 분석">
-                <div style={{ height: '300px', display: 'flex', justifyContent: 'center' }}>
-                    <Pie data={calculatedData.pieChartData} options={calculatedData.pieChartOptions} />
-                </div>
-            </Card>
+          <Card title="이벤트 유형 분석">
+            <div style={{ height: '300px', display: 'flex', justifyContent: 'center' }}>
+              <Pie data={calculatedData.pieChartData} options={calculatedData.pieChartOptions} />
+            </div>
+          </Card>
         </Col>
         <Col xs={24} lg={14}>
-            <Card title="세션별 지속 시간">
-                 <div style={{ height: '300px' }}>
-                    <Bar data={calculatedData.barChartData} options={calculatedData.barChartOptions} />
-                 </div>
-            </Card>
+          <Card title="세션별 지속 시간">
+            <div style={{ height: '300px' }}>
+              <Bar data={calculatedData.barChartData} options={calculatedData.barChartOptions} />
+            </div>
+          </Card>
         </Col>
       </Row>
     </div>

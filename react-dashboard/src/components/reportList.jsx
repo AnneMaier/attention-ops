@@ -29,7 +29,7 @@ function ReportList() {
         setLatestReport(null);
         setOtherReports([]);
       }
-    } catch (error) {
+    } catch {
       message.error('보고서 목록을 불러오는 데 실패했습니다.');
     } finally {
       setLoading(false);
@@ -45,7 +45,7 @@ function ReportList() {
       await axios.delete(`/api/reports/${reportId}`);
       message.success('보고서가 성공적으로 삭제되었습니다.');
       fetchReports(); // 삭제 후 목록을 새로고침합니다.
-    } catch (error) {
+    } catch {
       message.error('보고서 삭제에 실패했습니다.');
     }
   };
@@ -53,10 +53,10 @@ function ReportList() {
   const handleCardClick = (report) => {
     if (!report) return;
     // 상세 페이지로 이동하며, 제목과 생성일 정보를 state로 전달합니다.
-    navigate(`/reports/${report._id}`, { 
-      state: { 
+    navigate(`/reports/${report._id}`, {
+      state: {
         reportTitle: report.reportTitle,
-        createdAt: report.createdAt 
+        createdAt: report.createdAt
       }
     });
   };
@@ -66,14 +66,14 @@ function ReportList() {
   const handleReportCreated = () => {
     // 보고서 생성 후, 백엔드 처리 시간을 기다렸다가 목록을 새로고침합니다.
     setTimeout(() => {
-        fetchReports();
+      fetchReports();
     }, 2000);
   };
 
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#101923' }}><Spin size="large" /></div>;
   }
-  
+
   // 삭제 버튼 UI를 생성하는 헬퍼 함수
   const renderDeleteButton = (report) => (
     <Popconfirm
@@ -82,12 +82,12 @@ function ReportList() {
       onCancel={(e) => e.stopPropagation()}
       okText="예"
       cancelText="아니오"
-      overlayInnerStyle={{backgroundColor: 'white'}}
+      overlayInnerStyle={{ backgroundColor: 'white' }}
     >
-      <Button 
-        type="text" 
-        danger 
-        icon={<DeleteOutlined />} 
+      <Button
+        type="text"
+        danger
+        icon={<DeleteOutlined />}
         onClick={(e) => e.stopPropagation()}
       >
         삭제

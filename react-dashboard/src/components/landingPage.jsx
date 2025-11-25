@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import GlassButton from './glassButton'; // 새로 만든 GlassButton을 import 합니다.
 
 function LandingPage() {
-  const heroBgImage = 'https://images.unsplash.com/photo-1508615039623-a25605d2b022?q=80&w=2070&auto=format'; 
+  const heroBgImage = 'https://images.unsplash.com/photo-1508615039623-a25605d2b022?q=80&w=2070&auto=format';
 
   const howItWorksSteps = [
     {
@@ -30,7 +30,7 @@ function LandingPage() {
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-7 h-7 text-white">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9.75 9.75m0 0l-3 7.5c0 .712.118 1.412.358 2.072m3.193-9.52c.24-.66.358-1.36.358-2.072M2.25 18.75l7.5-3m6.75 3l7.5-3m-15-6l7.5-3m7.5 3l-7.5 3m-12 3.75v-1.5a1.5 1.5 0 013 0v1.5m-3 0V21a3 3 0 003 3h.75m-9-6h2.25m-1.5 0H7.5m-1.5 0V5.25A2.25 2.25 0 017.5 3h.75m0-1.5h.75m-7.5 0h.75M9 16.5V21a3 3 0 003 3h.75m-9-6h2.25m-1.5 0H7.5m-1.5 0V5.25A2.25 2.25 0 017.5 3h.75m0-1.5h.75M9 16.5V21a3 3 0 003 3h.75" />
               </svg>
-              <h4 className="text-xl font-semibold text-white">Attention</h4> 
+              <h4 className="text-xl font-semibold text-white">Attention</h4>
             </div>
             <a href="https://alb.hwichan.shop/mainService" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-400 transition duration-300 ease-in-out px-3 py-2 rounded-md font-medium">
               세션 시작
@@ -39,7 +39,7 @@ function LandingPage() {
               보고서 확인
             </Link>
           </div>
-          <div className="flex-grow"></div> 
+          <div className="flex-grow"></div>
         </div>
       </header>
 
@@ -68,7 +68,7 @@ function LandingPage() {
               <GlassButton to="/reports" size="large">
                 보고서 확인하기
               </GlassButton>
-            </div>  
+            </div>
           </div>
         </section>
 
@@ -174,9 +174,9 @@ function LandingPage() {
       <footer className="px-4 py-8 md:py-12 bg-[#0e161f] text-gray-400 text-center rounded-t-lg">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="flex space-x-6">
-            <a href="#" className="hover:text-white transition duration-300 ease-in-out">개인정보처리방침</a>
-            <a href="#" className="hover:text-white transition duration-300 ease-in-out">서비스 약관</a>
-            <a href="#" className="hover:text-white transition duration-300 ease-in-out">문의하기</a>
+            <button className="hover:text-white transition duration-300 ease-in-out">개인정보처리방침</button>
+            <button className="hover:text-white transition duration-300 ease-in-out">서비스 약관</button>
+            <button className="hover:text-white transition duration-300 ease-in-out">문의하기</button>
           </div>
           <div className="text-sm">© {new Date().getFullYear()} Attention. 모든 권리 보유.</div>
         </div>
