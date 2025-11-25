@@ -12,10 +12,10 @@ const quoteElement = document.getElementById("quote-display"); // 명언 표시 
 const sessionTimerDisplay = document.getElementById("sessionTimerDisplay");
 const toggleCameraButton = document.getElementById("toggle-camera");
 const pauseResumeButton = document.getElementById("pause-resume");
-const endSessionButton = document.getElementById("end-session"); 
+const endSessionButton = document.getElementById("end-session");
 const warningLog = document.getElementById("warningLog");
 const warningList = document.getElementById("warningList");
-const toggleWarningListButton = document.getElementById("toggleWarningList"); 
+const toggleWarningListButton = document.getElementById("toggleWarningList");
 
 // 종료 확인 모달 요소
 const endSessionModal = document.getElementById("endSessionModal");
@@ -29,14 +29,14 @@ let isVideoPlaying = false;
 let latestLandmarks = [];
 
 // WebSocket 관련 변수 및 세션 ID
-const WEBSOCKET_URL = `wss://${window.location.hostname}/ws`;
+const WEBSOCKET_URL = `ws://${window.location.hostname}:9001`;
 let websocket;
 const SESSION_ID = crypto.randomUUID();
 const USER_ID = "1";
 
 // 상태 추적 변수
 let isPaused = false;
-let isCameraVisible = false; 
+let isCameraVisible = false;
 let sessionStartTime;
 let sessionTimerInterval;
 let elapsedPausedTime = 0;
@@ -52,8 +52,8 @@ const QUOTES = [
     { quote: "오직 한 가지 성공이 있을 뿐이다. \n 바로 자기 자신만의 방식으로 삶을 살아갈 수 있느냐이다.", author: "크리스토퍼 몰리" },
     { quote: "집중력은 지성의 또 다른 이름이다.", author: "아서 쇼펜하우어" },
     { quote: "천 리 길도 한 걸음부터.", author: "노자" },
-    { quote: "당신이 할 수 있다고 믿든 할 수 없다고 믿든,\n 믿는 대로 될 것이다.", author: "헨리 포드"},
-    { quote: "오늘 할 수 있는 일에 전력을 다하라.\n 그러면 내일에는 한 걸음 더 진보해 있을 것이다.", author: "아이작 뉴턴"}
+    { quote: "당신이 할 수 있다고 믿든 할 수 없다고 믿든,\n 믿는 대로 될 것이다.", author: "헨리 포드" },
+    { quote: "오늘 할 수 있는 일에 전력을 다하라.\n 그러면 내일에는 한 걸음 더 진보해 있을 것이다.", author: "아이작 뉴턴" }
 ];
 
 
@@ -109,7 +109,7 @@ function playWarningBeep() {
 
 function onResults(results) {
     if (isPaused) {
-        latestLandmarks = []; 
+        latestLandmarks = [];
         return;
     }
 
@@ -137,7 +137,7 @@ async function mainLoop(currentTime) {
         if (isCameraVisible) {
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            
+
             if (latestLandmarks.length > 0) {
                 for (const index of KEY_LANDMARK_INDICES) {
                     const landmark = latestLandmarks[index];
@@ -155,7 +155,7 @@ async function mainLoop(currentTime) {
         } else {
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
         }
-        
+
         if (!isPaused && isFaceMeshInitialized && (currentTime - lastProcessTime > processInterval)) {
             lastProcessTime = currentTime;
             await faceMesh.send({ image: videoElement });
@@ -170,7 +170,7 @@ async function initializeWebcam() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
         videoElement.srcObject = stream;
-        
+
         videoElement.addEventListener("playing", () => {
             console.log("🟢 비디오 재생 시작됨. 메인 루프 시작.");
             isVideoPlaying = true;
@@ -202,7 +202,7 @@ function connectWebSocket() {
         console.log('✅ WebSocket 연결 성공.');
         const initialMessage = "얼굴을 보여주세요.";
         statusElement.textContent = initialMessage;
-        
+
         setTimeout(() => {
             if (statusElement.textContent === initialMessage) {
                 statusElement.textContent = "집중 분석 중";
@@ -213,7 +213,7 @@ function connectWebSocket() {
     };
 
     websocket.onmessage = (event) => {
-        const alarmMessage = event.data; 
+        const alarmMessage = event.data;
         console.log(`🔔 서버로부터 메시지 수신: ${alarmMessage}`);
         statusElement.textContent = `🚨 ${alarmMessage}`;
         addWarningToList(alarmMessage); // 여기에 경고가 추가될 것
@@ -224,8 +224,8 @@ function connectWebSocket() {
             duration: 3000,
             newWindow: true,
             close: true,
-            gravity: "top", 
-            position: "right", 
+            gravity: "top",
+            position: "right",
             stopOnFocus: true,
         }).showToast();
     };
@@ -276,14 +276,14 @@ function toggleCameraVisibility() {
     isCameraVisible = !isCameraVisible;
     if (isCameraVisible) {
         videoContainer.classList.remove('opacity-0');
-        videoContainer.classList.remove('pointer-events-none'); 
+        videoContainer.classList.remove('pointer-events-none');
         toggleCameraButton.innerHTML = CAMERA_ON_ICON;
-        quoteElement.classList.add('opacity-0'); 
+        quoteElement.classList.add('opacity-0');
     } else {
         videoContainer.classList.add('opacity-0');
-        videoContainer.classList.add('pointer-events-none'); 
+        videoContainer.classList.add('pointer-events-none');
         toggleCameraButton.innerHTML = CAMERA_OFF_ICON;
-        quoteElement.classList.remove('opacity-0'); 
+        quoteElement.classList.remove('opacity-0');
     }
 }
 
@@ -304,8 +304,8 @@ function togglePauseState() {
 function endSession() {
     sendEvent('end', { reason: 'user_clicked_end_button' });
     statusElement.textContent = "세션을 종료합니다...";
-    clearInterval(sessionTimerInterval); 
-    if(videoElement.srcObject) {
+    clearInterval(sessionTimerInterval);
+    if (videoElement.srcObject) {
         videoElement.srcObject.getTracks().forEach(track => track.stop());
     }
     if (websocket) {
@@ -319,21 +319,21 @@ function endSession() {
 */
 function startApp() {
     console.log("🟢 애플리케이션 시작.");
-    
+
     // 페이지 로드 시 랜덤 명언 표시
     const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
     quoteElement.innerHTML = `
         <h2 class="text-3xl font-bold mb-4">"${randomQuote.quote}"</h2>
         <p class="text-xl text-gray-400">- ${randomQuote.author} -</p>
     `;
-    
+
     // 초기 상태 설정: 카메라 컨테이너는 숨김, 명언은 보임
     videoContainer.classList.add('opacity-0', 'pointer-events-none');
     quoteElement.classList.remove('opacity-0');
 
     // 초기 아이콘 설정 
     pauseResumeButton.innerHTML = PAUSE_ICON;
-    toggleCameraButton.innerHTML = CAMERA_OFF_ICON; 
+    toggleCameraButton.innerHTML = CAMERA_OFF_ICON;
 
     setTimeout(connectWebSocket, 0);
     setTimeout(initializeWebcam, 0);
@@ -343,42 +343,42 @@ function startApp() {
     sessionTimerInterval = setInterval(updateSessionTimer, 1000);
 
     // --- 이벤트 리스너 등록 --- 
-    toggleCameraButton.addEventListener('click', toggleCameraVisibility); 
-    pauseResumeButton.addEventListener('click', togglePauseState); 
+    toggleCameraButton.addEventListener('click', toggleCameraVisibility);
+    pauseResumeButton.addEventListener('click', togglePauseState);
 
-    endSessionButton.addEventListener('click', () => { 
-        endSessionModal.classList.remove("opacity-0", "pointer-events-none"); 
-    }); 
-    
-    confirmEndSessionButton.addEventListener('click', () => { 
-        endSessionModal.classList.add("opacity-0", "pointer-events-none"); 
-        endSession(); 
-    }); 
+    endSessionButton.addEventListener('click', () => {
+        endSessionModal.classList.remove("opacity-0", "pointer-events-none");
+    });
 
-    cancelEndSessionButton.addEventListener('click', () => { 
-        endSessionModal.classList.add("opacity-0", "pointer-events-none"); 
-    }); 
+    confirmEndSessionButton.addEventListener('click', () => {
+        endSessionModal.classList.add("opacity-0", "pointer-events-none");
+        endSession();
+    });
+
+    cancelEndSessionButton.addEventListener('click', () => {
+        endSessionModal.classList.add("opacity-0", "pointer-events-none");
+    });
 
     // 경고 리스트 확인 버튼 이벤트 리스너
-    toggleWarningListButton.addEventListener('click', () => { 
+    toggleWarningListButton.addEventListener('click', () => {
         console.log("경고 리스트 토글 버튼 클릭됨"); // 디버깅용 로그 추가
-        const isHidden = warningList.classList.contains('opacity-0'); 
-        if (isHidden) { 
+        const isHidden = warningList.classList.contains('opacity-0');
+        if (isHidden) {
             console.log("경고 리스트 보이기: opacity-0, scale-95, pointer-events-none 클래스 제거"); // 디버깅용 로그 추가
-            warningList.classList.remove('opacity-0', 'scale-95', 'pointer-events-none'); 
-        } else { 
+            warningList.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        } else {
             console.log("경고 리스트 숨기기: opacity-0, scale-95, pointer-events-none 클래스 추가"); // 디버깅용 로그 추가
-            warningList.classList.add('opacity-0', 'scale-95', 'pointer-events-none'); 
-        } 
-    }); 
-} 
+            warningList.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+        }
+    });
+}
 
 // --- 애플리케이션 실행 --- 
 
-document.addEventListener("DOMContentLoaded", startApp); 
+document.addEventListener("DOMContentLoaded", startApp);
 
-window.addEventListener('beforeunload', (event) => { 
-    if (websocket && websocket.readyState === WebSocket.OPEN) { 
-        sendEvent('end', { reason: 'user_closed_tab' }); 
-    } 
+window.addEventListener('beforeunload', (event) => {
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+        sendEvent('end', { reason: 'user_closed_tab' });
+    }
 });

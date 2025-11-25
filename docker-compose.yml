@@ -22,6 +22,18 @@ services:
     networks:
       - attention-network
 
+  mongo:
+    image: mongo:latest
+    container_name: attention-mongo
+    ports:
+      - "27017:27017"
+    restart: always
+    networks:
+      - attention-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+
   session-data-saver:
     container_name: attention-data-saver
     build:
