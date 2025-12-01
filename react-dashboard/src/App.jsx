@@ -4,51 +4,32 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import LandingPage from './components/landingPage';
 import ReportList from './components/reportList';
 import ReportDetail from './components/reportDetail';
+import SessionPage from './pages/SessionPage';
 import './App.css';
 
-const { Header, Content, Footer } = Layout;
-const { Title } = Typography;
+import Navbar from './components/Navbar';
 
 function PageContent() {
   const location = useLocation();
-  // [수정] 랜딩 페이지와 보고서 목록 페이지는 다크 레이아웃을 사용하도록 조건을 변경합니다.
-  const useDarkLayout = location.pathname === '/' || location.pathname === '/reports';
-
-  const contentStyle = useDarkLayout
-    ? { padding: 0 }
-    : { padding: '24px 48px', background: '#f0f2f5' };
-
-  const contentWrapperStyle = useDarkLayout
-    ? {}
-    : { background: '#fff', padding: 24, minHeight: 'calc(100vh - 128px)' };
-  
-  // 보고서 상세 페이지에만 별도의 헤더/푸터를 보여줍니다.
-  const showDashboardHeaderFooter = !useDarkLayout && location.pathname.startsWith('/reports/');
+  const isSessionPage = location.pathname === '/session';
 
   return (
-    <Layout style={{ background: 'transparent' }}>
-      {showDashboardHeaderFooter && (
-        <Header style={{ display: 'flex', alignItems: 'center' }}>
-          <Title level={3} style={{ color: 'white', margin: 0 }}>
-            Attention Project - Dashboard
-          </Title>
-        </Header>
-      )}
-      
-      <Content style={contentStyle}>
-        <div style={contentWrapperStyle}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/reports" element={<ReportList />} />
-            <Route path="/reports/:reportId" element={<ReportDetail />} />
-          </Routes>
-        </div>
+    <Layout style={{ minHeight: '100vh', background: '#101923' }}>
+      {!isSessionPage && <Navbar />}
+
+      <Content style={{ padding: 0 }}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/reports" element={<ReportList />} />
+          <Route path="/reports/:reportId" element={<ReportDetail />} />
+          <Route path="/session" element={<SessionPage />} />
+        </Routes>
       </Content>
 
-      {showDashboardHeaderFooter && (
-         <Footer style={{ textAlign: 'center' }}>
-            Attention Project ©{new Date().getFullYear()} Created by Hwichan
-         </Footer>
+      {!isSessionPage && (
+        <Footer style={{ textAlign: 'center', background: '#0e161f', color: '#6b7280', borderTop: '1px solid #1f2937' }}>
+          Attention Project ©{new Date().getFullYear()} Created by Hwichan
+        </Footer>
       )}
     </Layout>
   );

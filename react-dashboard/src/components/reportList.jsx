@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Button, Typography, message, Spin, Card, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, DeleteOutlined, FileTextOutlined, LeftOutlined, StarOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ChromaCard from './chromaCard';
 import CreateReportModal from './createReportModal';
 import './reportList.css';
@@ -15,6 +15,7 @@ function ReportList() {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const fetchReports = async () => {
     // 최초 로딩 시에만 스피너를 보여주도록 설정합니다.
@@ -38,7 +39,14 @@ function ReportList() {
 
   useEffect(() => {
     fetchReports();
-  }, []);
+
+    // 세션 종료 후 넘어온 경우 처리
+    if (location.state?.sessionEnded) {
+      message.success("새로운 리포트가 생성되었습니다.");
+      // 네비게이션 state 초기화 (새로고침 시 반복 방지)
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleDelete = async (reportId) => {
     try {
@@ -99,7 +107,6 @@ function ReportList() {
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px', color: 'white' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
-          <Button type="text" icon={<LeftOutlined />} onClick={() => navigate('/')} style={{ color: '#a6adb4', marginRight: '16px' }}>홈으로</Button>
           <Title level={2} style={{ color: 'white', margin: 0, display: 'inline-block' }}>보고서 대시보드</Title>
         </div>
         <Button type="primary" size="large" icon={<PlusOutlined />} onClick={showCreateModal}>
