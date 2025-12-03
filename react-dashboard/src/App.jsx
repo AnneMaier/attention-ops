@@ -9,6 +9,9 @@ import './App.css';
 
 import Navbar from './components/Navbar';
 
+// [수정] Layout에서 Content와 Footer를 추출합니다.
+const { Content, Footer } = Layout;
+
 function PageContent() {
   const location = useLocation();
   const isSessionPage = location.pathname === '/session';
