@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  frontend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./react-dashboard
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    - name: Install dependencies
+      run: npm ci
+    - name: Run lint
+      run: npm run lint
+    - name: Run tests
+      run: npm test
+
+  backend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./fastapiServer
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run tests
+      env:
+        MONGO_HOST: localhost
+        MONGO_PORT: 27017
+        MONGO_USER: test
+        MONGO_PASSWORD: test
+        MONGO_DB_NAME: test_db
+        OLLAMA_HOST: http://localhost:11434
+      run: |
+        pytest
