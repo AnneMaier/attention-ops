@@ -27,6 +27,8 @@ const SessionPage = () => {
     const [randomQuote, setRandomQuote] = useState(QUOTES[0]);
     const [warnings, setWarnings] = useState([]);
     const [isWarningListVisible, setIsWarningListVisible] = useState(false);
+    const [modal, contextHolder] = Modal.useModal();
+
 
     // Refs for mutable state accessed in callbacks
     const wsRef = useRef(null);
@@ -294,21 +296,26 @@ const SessionPage = () => {
         setIsCameraVisible(!isCameraVisible);
     };
 
-    const handleEndSession = () => {
-        Modal.confirm({
+    const handleEndSession = (e) => {
+        if (e) e.stopPropagation(); // 이벤트 전파 차단
+        console.log("🔘 [SessionPage] 세션 종료 버튼 클릭됨");
+
+        modal.confirm({
             title: '세션 종료',
             content: '정말로 현재 집중 세션을 종료하시겠습니까? 데이터가 저장되고 대시보드로 이동합니다.',
             okText: '종료',
             okType: 'danger',
             cancelText: '취소',
+            centered: true, // 모바일에서 중앙 정렬 보장
+            width: '90%', // 모바일 뷰포트 대응
+            style: { top: 100, zIndex: 10001 }, // 수동 위치 및 zIndex 강화
             onOk() {
+                console.log("✅ 세션 종료 확인됨");
                 sendEvent('end', { reason: 'user_clicked_end_button' });
                 cleanup();
 
-                // 로딩 피드백 표시
                 const hide = message.loading('리포트 생성 중...', 0);
 
-                // 데이터 저장 대기 후 이동 (2초)
                 setTimeout(() => {
                     hide();
                     message.success('세션이 종료되었습니다.');
@@ -320,6 +327,7 @@ const SessionPage = () => {
 
     return (
         <div className="min-h-screen bg-[#101923] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+            {contextHolder}
             {/* Quote Display */}
             {!isCameraVisible && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 pointer-events-none px-4">
@@ -328,8 +336,8 @@ const SessionPage = () => {
                 </div>
             )}
 
-            {/* Top Right Buttons */}
-            <div className="fixed top-20 right-12 z-50 flex flex-col gap-4 items-end">
+            {/* Top Right Buttons - z-index 최상위로 격상 및 위치 미세 조정 */}
+            <div className="fixed top-8 right-8 md:top-20 md:right-12 z-[100] flex flex-col gap-4 items-end pointer-events-auto">
                 <Button
                     danger
                     type="primary"
