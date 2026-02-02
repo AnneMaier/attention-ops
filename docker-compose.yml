@@ -21,6 +21,8 @@ services:
     restart: always
     networks:
       - attention-network
+    ports:
+      - "6379:6379"
 
   mongo:
     image: mongo:latest
@@ -65,18 +67,18 @@ services:
       - REDIS_PORT=6379
     depends_on:
       - redis
-      
+
   fastapi-server:
     build:
-      context: ./fastapiServer  # Dockerfile이 있는 디렉토리 경로
+      context: ./fastapiServer # Dockerfile이 있는 디렉토리 경로
     container_name: fastapi-server
     env_file:
-      - ./fastapiServer/.env  # .env 파일 경로 지정
+      - ./fastapiServer/.env # .env 파일 경로 지정
     ports:
-      - "8000:8000"  # 호스트의 8000번 포트와 컨테이너의 8000번 포트를 연결
+      - "8000:8000" # 호스트의 8000번 포트와 컨테이너의 8000번 포트를 연결
     networks:
       - attention-network # 다른 서비스와 동일한 네트워크 사용 (기존 설정에 따라 변경)
-  
+
   react-dashboard:
     build:
       context: ./react-dashboard
@@ -87,7 +89,6 @@ services:
       - fastapi-server
     networks:
       - attention-network
-
 
 networks:
   attention-network:

@@ -16,3 +16,14 @@ websocket/target/
 
 /dataScripts/augmented_reports
 **/__pycache__/
+
+
+## python
+
+attention-test/venv
+
+## documents
+
+/documents/*
+*.pcap
+    

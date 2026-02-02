@@ -3,7 +3,7 @@ import os
 
 # [수정] API 엔드포인트를 /api/chat으로 변경합니다.
 OLLAMA_API_URL = os.getenv("OLLAMA_HOST") + "/api/generate"
-FINETUNED_MODEL_NAME = "attention-coach-model:latest"
+FINETUNED_MODEL_NAME = "qwen3:1.7b"
 
 async def get_feedback_from_exaone(fact_summary: str) -> str:
     """
