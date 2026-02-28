@@ -102,9 +102,10 @@ cp .env.example .env
 docker-compose up --build
 ```
 
-### 접속
-- **대시보드**: http://localhost:3000
-- **API 문서**: http://localhost:8000/docs
+### 접근
+Frontend Dashboard: http://localhost:3000 (Local Run Only)
+API Documentation: http://localhost:8000/docs (Swagger UI)
+WebSocket Server: ws://localhost:8080 (Rust Core)
 
 ---
 
