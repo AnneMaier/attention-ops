@@ -103,13 +103,15 @@ docker-compose up --build
 ```
 
 ### 접근
-Frontend Dashboard: http://localhost:3000 (Local Run Only)
-API Documentation: http://localhost:8000/docs (Swagger UI)
-WebSocket Server: ws://localhost:8080 (Rust Core)
+- Frontend Dashboard: http://localhost:3000 (Local Run Only)
+- API Documentation: http://localhost:8000/docs (Swagger UI)
+- WebSocket Server: ws://localhost:8080 (Rust Core)
 
 ---
 
 ## 프로젝트 구조
+
+<img width="5044" height="3128" alt="image (5)" src="https://github.com/user-attachments/assets/e5f61766-0049-444f-87cf-a10c68a094f6" />
 
 ```
 attention/
@@ -121,6 +123,11 @@ attention/
 ├── k8s/                 # Kubernetes 매니페스트
 ├── attention-test/      # 부하 테스트 코드
 └── docker-compose.yml   # 로컬 오케스트레이션
+
+
+
+
+
 ```
 
 ---
