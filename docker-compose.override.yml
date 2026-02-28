@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  fastapi-server:
+    # 로컬 개발 환경용 오버라이드
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:${HOST_GATEWAY:-host-gateway}"
+
+  react-dashboard:
+    # 프론트엔드 포트 및 개발 모드 설정
+    ports:
+      - "3000:80"
+
+  websocket:
+    # 윈도우 호스트에서 접속 가능하도록 포트 유지
+    ports:
+      - "9001:9001"
