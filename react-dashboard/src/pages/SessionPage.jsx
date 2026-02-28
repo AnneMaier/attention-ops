@@ -20,8 +20,13 @@ const SessionPage = () => {
     const navigate = useNavigate();
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
-    const [status, setStatus] = useState("세션 시작 중...");
+    const timerRef = useRef(null); // 타이머 인터벌 보관용
+    const reconnectAttemptsRef = useRef(0); // [추가] 재연결 시도 횟수
     const [timer, setTimer] = useState("00:00:00");
+    const [sessionId] = useState('session-' + Date.now()); // 세션 진입 시 한 번만 생성
+    const [connectionStatus, setConnectionStatus] = useState('connecting'); // connecting | connected | reconnecting | failed
+    const [countdown, setCountdown] = useState(0); // [추가] 실시간 카운트다운 상테
+    const connectionStatusRef = useRef('connecting'); // [추가] Stale Closure 방지용 Ref
     const [isPaused, setIsPaused] = useState(false);
     const [isCameraVisible, setIsCameraVisible] = useState(false);
     const [randomQuote, setRandomQuote] = useState(QUOTES[0]);
@@ -62,6 +67,10 @@ const SessionPage = () => {
         if (faceLandmarkerRef.current) {
             faceLandmarkerRef.current.close();
         }
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
     };
 
     const startApp = async () => {
@@ -71,8 +80,7 @@ const SessionPage = () => {
         await initializeMediaPipe();
 
         sessionStartTimeRef.current = new Date();
-        const timerInterval = setInterval(updateSessionTimer, 1000);
-        return () => clearInterval(timerInterval);
+        timerRef.current = setInterval(updateSessionTimer, 1000);
     };
 
     const updateSessionTimer = () => {
@@ -95,10 +103,23 @@ const SessionPage = () => {
 
         ws.onopen = () => {
             console.log('✅ WebSocket 연결 성공.');
-            setStatus("얼굴을 보여주세요.");
-            setTimeout(() => {
-                if (ws.readyState === WebSocket.OPEN) setStatus("집중 분석 중");
-            }, 5000);
+            // connectionStatusRef를 사용하여 최신 상태 참조 (Stale Closure 방지)
+            const wasReconnecting = connectionStatusRef.current === 'reconnecting';
+
+            setConnectionStatus('connected');
+            connectionStatusRef.current = 'connected';
+            reconnectAttemptsRef.current = 0;
+            setCountdown(0);
+
+            if (wasReconnecting) {
+                message.success('서버와 다시 연결되었습니다!');
+                setStatus("집중 분석 중");
+            } else {
+                setStatus("얼굴을 보여주세요.");
+                setTimeout(() => {
+                    if (ws.readyState === WebSocket.OPEN) setStatus("집중 분석 중");
+                }, 5000);
+            }
 
             sendEvent('start', { userAgent: navigator.userAgent });
         };
@@ -113,9 +134,27 @@ const SessionPage = () => {
         };
 
         ws.onclose = () => {
-            console.log('🔌 WebSocket 연결 종료. 재연결 시도...');
-            setStatus("서버와 연결이 끊겼습니다. 재연결 중...");
-            setTimeout(connectWebSocket, 5000);
+            console.log('🔌 WebSocket 연결 종료.');
+
+            if (reconnectAttemptsRef.current < 5) {
+                setConnectionStatus('reconnecting');
+                connectionStatusRef.current = 'reconnecting';
+
+                // 표준 지수 백오프 공식 적용 (Claude 제안)
+                const nextDelay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
+                reconnectAttemptsRef.current += 1;
+
+                const secondsToWait = Math.round(nextDelay / 1000);
+                setCountdown(secondsToWait);
+
+                setStatus(`서버 연결 끊김. ${secondsToWait}초 후 재연결 시도... (${reconnectAttemptsRef.current}/5)`);
+                setTimeout(connectWebSocket, nextDelay);
+            } else {
+                setConnectionStatus('failed');
+                connectionStatusRef.current = 'failed';
+                setStatus("서버 연결에 실패했습니다.");
+                message.error('서버와의 연결이 완전히 끊겼습니다. 아래 버튼을 눌러 다시 시도하세요.', 0);
+            }
         };
 
         ws.onerror = (error) => {
@@ -127,7 +166,7 @@ const SessionPage = () => {
     const sendEvent = (eventType, payload) => {
         if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
         const msg = {
-            sessionId: 'session-' + Date.now(), // Simple ID generation
+            sessionId: sessionId, // 고정된 sessionId 사용
             userId: "1", // Hardcoded for now
             timestamp: new Date().toISOString(),
             eventType,
@@ -325,6 +364,23 @@ const SessionPage = () => {
         });
     };
 
+    // 실시간 카운트다운 타이머 이펙트
+    useEffect(() => {
+        let interval;
+        if (connectionStatus === 'reconnecting' && countdown > 0) {
+            interval = setInterval(() => {
+                setCountdown(prev => {
+                    const next = prev - 1;
+                    if (next >= 0) {
+                        setStatus(`서버 연결 끊김. ${next}초 후 재연결 시도... (${reconnectAttemptsRef.current}/5)`);
+                    }
+                    return next;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [connectionStatus, countdown]);
+
     return (
         <div className="min-h-screen bg-[#101923] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
             {contextHolder}
@@ -380,9 +436,26 @@ const SessionPage = () => {
 
                 {/* Status Bar */}
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center space-x-4 bg-black/50 backdrop-blur-sm px-6 py-2 rounded-full border border-gray-700/50 z-20">
-                    <div className="text-lg font-semibold">{status}</div>
+                    <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' :
+                            connectionStatus === 'reconnecting' ? 'bg-yellow-500 animate-pulse' :
+                                connectionStatus === 'failed' ? 'bg-red-500' : 'bg-gray-500'
+                            }`}></span>
+                        <span className="text-lg font-semibold">{status}</span>
+                    </div>
                     <div className="w-px h-6 bg-gray-600"></div>
                     <div className="text-lg font-mono">{timer}</div>
+                    {connectionStatus === 'failed' && (
+                        <Button
+                            type="primary"
+                            danger
+                            size="small"
+                            onClick={connectWebSocket}
+                            className="ml-2 animate-bounce"
+                        >
+                            재연결 시도
+                        </Button>
+                    )}
                 </div>
 
                 {/* Controls */}
