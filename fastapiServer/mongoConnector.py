@@ -189,19 +189,20 @@ class MongoConnector:
         self.db.reports.insert_one(document)
         return report_id
 
-    def updateReportStatus(self, report_id: str, status: str, s3_path: str = None):
+    def updateReportStatus(self, report_id: str, status: str, storage_path: str = None):
         """
-        [신규] 특정 보고서의 상태와 S3 경로를 업데이트합니다.
+        [신규] 특정 보고서의 상태와 저장 경로를 업데이트합니다.
         """
         if self.db is None:
             return
 
         update_fields = {
             "status": status,
-            "completedAt": datetime.now(timezone.utc).isoformat()
+            "completedAt": datetime.now(timezone.utc).isoformat() if status == "COMPLETED" else None
         }
-        if s3_path:
-            update_fields["s3Path"] = s3_path
+        
+        if storage_path:
+            update_fields["s3Path"] = storage_path # DB 스키마 유지를 위해 키값은 s3Path 유지
         
         self.db.reports.update_one(
             {"_id": report_id},
