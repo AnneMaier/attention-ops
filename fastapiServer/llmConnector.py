@@ -1,14 +1,15 @@
 import httpx
 import os
+import re
 
-# [수정] API 엔드포인트를 /api/chat으로 변경합니다.
-OLLAMA_API_URL = os.getenv("OLLAMA_HOST") + "/api/generate"
+# OLLAMA API 엔드포인트 설정 (기본값 설정으로 안정성 확보)
+OLLAMA_API_URL = (os.getenv("OLLAMA_HOST") or "http://localhost:11434") + "/api/generate"
 FINETUNED_MODEL_NAME = "qwen3:1.7b"
 
-async def get_feedback_from_exaone(fact_summary: str) -> str:
+async def get_coaching_feedback(fact_summary: str) -> str:
     """
-    파인튜닝된 EXAONE 모델을 호출하여, 최종 코칭 피드백을 생성합니다.
-    test2.py에서 성공한 파라미터와 프롬프트 구조를 그대로 적용합니다.
+    파인튜닝된 AI 모델을 호출하여, 최종 코칭 피드백을 생성합니다.
+    (함수명 일반화: get_feedback_from_exaone -> get_coaching_feedback)
     """
     print(f"INFO: [llmConnector] '{FINETUNED_MODEL_NAME}' 모델 호출 시작...")
     
@@ -54,6 +55,9 @@ async def get_feedback_from_exaone(fact_summary: str) -> str:
             
             data = response.json()
             coaching_feedback = data.get("response", "").strip()
+            
+            # [수정] <think> 태그 블록 제거
+            coaching_feedback = re.sub(r'<think>.*?</think>', '', coaching_feedback, flags=re.DOTALL).strip()
             
             if not coaching_feedback:
                 return "AI 코칭 피드백을 생성할 수 없습니다."

@@ -11,8 +11,14 @@ def createSummarySentence(report_data: dict) -> str:
 
         date_range = report_data.get("dateRange", {})
         # 날짜 문자열을 datetime 객체로 변환 후, 원하는 형식으로 다시 포맷팅
-        start_date_obj = datetime.fromisoformat(date_range.get("start", " ").replace("Z", "+00:00"))
-        end_date_obj = datetime.fromisoformat(date_range.get("end", " ").replace("Z", "+00:00"))
+        # 날짜 문자열 안전하게 처리
+        start_raw = date_range.get("start") or ""
+        end_raw = date_range.get("end") or ""
+        
+        from datetime import datetime
+        start_date_obj = datetime.fromisoformat(start_raw.replace("Z", "+00:00")) if start_raw else datetime.now()
+        end_date_obj = datetime.fromisoformat(end_raw.replace("Z", "+00:00")) if end_raw else datetime.now()
+        
         start_date_str = start_date_obj.strftime('%Y-%m-%d')
         end_date_str = end_date_obj.strftime('%Y-%m-%d')
 
