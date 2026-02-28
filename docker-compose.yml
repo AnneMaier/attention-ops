@@ -33,8 +33,8 @@ services:
     networks:
       - attention-network
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
 
   session-data-saver:
     container_name: attention-data-saver
@@ -78,6 +78,10 @@ services:
       - "8000:8000" # 호스트의 8000번 포트와 컨테이너의 8000번 포트를 연결
     networks:
       - attention-network # 다른 서비스와 동일한 네트워크 사용 (기존 설정에 따라 변경)
+    extra_hosts:
+      - "host.docker.internal:${HOST_GATEWAY:-host-gateway}"
+    volumes:
+      - ./fastapiServer/storage/reports:/app/storage/reports
 
   react-dashboard:
     build:
