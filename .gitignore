@@ -23,7 +23,7 @@ websocket/target/
 attention-test/venv
 
 ## documents
+/documents/
 
-/documents/*
+fastapiServer/storage/
 *.pcap
-    
